@@ -1,0 +1,119 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
+  "name": "io.github.your-org/adr-mcp-server",
+  "description": "Architecture Decision Record MCP server with AI-assisted extraction, semantic search, conflict detection, summaries, and local SQLite persistence.",
+  "version": "1.0.0",
+  "status": "active",
+  "packages": [
+    {
+      "registry_type": "pypi",
+      "registry_base_url": "https://pypi.org",
+      "identifier": "adr-mcp-server",
+      "version": "1.0.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "runtime_hint": "python>=3.11"
+    }
+  ],
+  "tools": [
+    {
+      "name": "create_adr",
+      "description": "Create an ADR from free text, extract structure with AI, persist the ADR and embedding, and check conflicts.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "raw_text": {"type": "string", "description": "Free-text decision, problem and context."},
+          "project_id": {"type": "string", "default": "default"},
+          "author": {"type": ["string", "null"], "default": null}
+        },
+        "required": ["raw_text"]
+      }
+    },
+    {
+      "name": "search_decisions",
+      "description": "Semantic search over ADR decisions using cosine similarity with optional tag and status filters.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "query": {"type": "string"},
+          "top_k": {"type": "integer", "default": 5, "minimum": 1, "maximum": 50},
+          "filter_tags": {"type": ["array", "null"], "items": {"type": "string"}, "default": null},
+          "status": {"type": ["string", "null"], "enum": ["DRAFT", "ACCEPTED", "DEPRECATED", null], "default": null}
+        },
+        "required": ["query"]
+      }
+    },
+    {
+      "name": "check_conflicts",
+      "description": "Check an ADR against the corpus and classify CONTRADICTION, DEPENDENCY or OVERLAP.",
+      "input_schema": {
+        "type": "object",
+        "properties": {"adr_id": {"type": "string"}},
+        "required": ["adr_id"]
+      }
+    },
+    {
+      "name": "get_adr",
+      "description": "Read a complete ADR with audit history and supersession chain.",
+      "input_schema": {
+        "type": "object",
+        "properties": {"adr_id": {"type": "string"}},
+        "required": ["adr_id"]
+      }
+    },
+    {
+      "name": "deprecate_adr",
+      "description": "Deprecate an ADR and optionally link the ADR that supersedes it.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "adr_id": {"type": "string"},
+          "reason": {"type": "string"},
+          "superseded_by": {"type": ["string", "null"], "default": null}
+        },
+        "required": ["adr_id", "reason"]
+      }
+    },
+    {
+      "name": "summarize_project",
+      "description": "Create a markdown onboarding summary from project ADR history.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project_id": {"type": ["string", "null"], "default": null},
+          "include_deprecated": {"type": "boolean", "default": false}
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "list_adrs",
+      "description": "List ADR summaries with optional project, status and tag filters plus pagination.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project_id": {"type": ["string", "null"], "default": null},
+          "status": {"type": ["string", "null"], "enum": ["DRAFT", "ACCEPTED", "DEPRECATED", null], "default": null},
+          "tags": {"type": ["array", "null"], "items": {"type": "string"}, "default": null},
+          "page": {"type": "integer", "default": 1, "minimum": 1},
+          "page_size": {"type": "integer", "default": 20, "minimum": 1, "maximum": 100}
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "reindex_embeddings",
+      "description": "Regenerate embeddings in batches when the configured embedding model changes.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project_id": {"type": ["string", "null"], "default": null},
+          "batch_size": {"type": "integer", "default": 10, "minimum": 1, "maximum": 100},
+          "concurrency": {"type": "integer", "default": 3, "minimum": 1, "maximum": 10}
+        },
+        "required": []
+      }
+    }
+  ]
+}

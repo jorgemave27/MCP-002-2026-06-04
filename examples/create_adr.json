@@ -1,0 +1,5 @@
+{
+  "raw_text": "We decided to use PostgreSQL for the billing service because we need ACID transactions, relational joins and strong consistency. MongoDB was considered but rejected for this workload.",
+  "project_id": "billing-platform",
+  "author": "platform-team"
+}

@@ -1,0 +1,6 @@
+{
+  "query": "database technology for transactional billing data",
+  "top_k": 5,
+  "filter_tags": ["database"],
+  "status": "ACCEPTED"
+}
